@@ -20,7 +20,7 @@ def myRSI(price, n=20):
     return rsi
 
 if __name__ == "__main__":
-    start = dt.datetime(2018,1,1)
+    start = dt.datetime(2015,1,1)
     end = dt.datetime.now()
     df = web.DataReader("BTC-USD", "yahoo", start, end)
     print(df.head(10))
@@ -49,5 +49,33 @@ if __name__ == "__main__":
     fig.add_hline(y=60, row=2, col=1, line_dash="dash", line_color="red")
     fig.update_layout(xaxis_rangeslider_visible=False)
     fig.show()
+    
+    bought = False
+    buyindex = 0
+    scount = 0
+    fcount = 0
+    totalloss = 0
+    totalprofit = 0
+    for i in range(30,len(df)):
+        if df.iloc[i]["RSI"] < 30: 
+            if bought == False:
+                print("Buy " + str(df.iloc[i].name))
+                buyprice = df.iloc[i]['close']
+                bought = True
+                buyindex = i
+        if bought and i == buyindex + 1:
+            if buyprice >= df.iloc[i]['close']: 
+                print("Fail")
+                fcount+=1
+                totalloss+= df.iloc[i]['close'] - buyprice
+            else: 
+                print("Success")
+                scount+=1
+                totalprofit+= df.iloc[i]['close'] - buyprice
+            bought = False
+    print("Winrate = " + str(scount/(scount+fcount)))
+    print(totalprofit)
+    print(totalloss)
+    
 
 
