@@ -22,16 +22,18 @@ def myRSI(price, n=20):
 if __name__ == "__main__":
     start = dt.datetime(2015,1,1)
     end = dt.datetime.now()
-    df = web.DataReader("BTC-USD", "yahoo", start, end)
+    df = pd.read_csv("./BTC-USD.csv")
+    #df = web.DataReader("BTC-USD", "yahoo", start, end)
     print(df.head(10))
 
     df = df.rename(columns={'Open': 'open', 'Low': 'low', 'High': 'high', 'Close': 'close', 'Volume' : 'volume'})
 
     df=df[df['volume']!=0]
 
-    df.isna().sum()
+    #df.isna().sum()
     df.head(10)
     df['RSI'] = df.ta.rsi(length=14)
+    df['RSI'] = myRSI(df)
     df.head(100)
     dfpl = df[-200:]
     fig = make_subplots(rows=2, cols=1)
@@ -59,7 +61,7 @@ if __name__ == "__main__":
     for i in range(30,len(df)):
         if df.iloc[i]["RSI"] < 30: 
             if bought == False:
-                print("Buy " + str(df.iloc[i].name))
+                print("Buy " + str(df.iloc[i]['Date']))
                 buyprice = df.iloc[i]['close']
                 bought = True
                 buyindex = i
@@ -74,8 +76,5 @@ if __name__ == "__main__":
                 totalprofit+= df.iloc[i]['close'] - buyprice
             bought = False
     print("Winrate = " + str(scount/(scount+fcount)))
-    print(totalprofit)
-    print(totalloss)
-    
-
-
+    print("totalprofit = " + str(totalprofit))
+    print("totalloss = "+ str(totalloss))
